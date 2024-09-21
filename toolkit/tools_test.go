@@ -169,3 +169,15 @@ func TestTools_UploadFile(t *testing.T) {
 		t.Errorf("error expected but none received")
 	}
 }
+
+func TestTools_CreateDirIfNotExist(t *testing.T) {
+	var testTools Tools
+
+	err := testTools.CreateDirIfNotExist("./testdata/testdir")
+	if err != nil {
+		t.Error(err)
+	}
+
+	// clean up
+	_ = os.Remove("./testdata/testdir")
+}
