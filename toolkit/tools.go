@@ -254,3 +254,20 @@ func (t *Tools) WriteJSON(w http.ResponseWriter, status int, data any, headers .
 	}
 	return nil
 }
+
+// ErrorJSON writes a JSON error response to the http.ResponseWriter.
+// It sets the Content-Type header to application/json and writes the provided status code.
+// If no status code is provided, it defaults to http.StatusBadRequest.
+func (t *Tools) ErrorJSON(w http.ResponseWriter, err error, status ...int) error {
+	statusCode := http.StatusBadRequest
+
+	if len(status) > 0 {
+		statusCode = status[0]
+	}
+
+	var payload JSONResponse
+	payload.Error = true
+	payload.Msg = err.Error()
+
+	return t.WriteJSON(w, statusCode, payload)
+}
