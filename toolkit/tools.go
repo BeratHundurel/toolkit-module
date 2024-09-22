@@ -1,6 +1,7 @@
 package toolkit
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/json"
 	"errors"
@@ -270,4 +271,35 @@ func (t *Tools) ErrorJSON(w http.ResponseWriter, err error, status ...int) error
 	payload.Msg = err.Error()
 
 	return t.WriteJSON(w, statusCode, payload)
+}
+
+// PushJSONToRemote sends a JSON payload to a remote server via HTTP POST request.
+// uri is the endpoint to which the request is sent.
+// data is the payload to be sent in JSON format.
+// client is an optional parameter to specify a custom HTTP client.
+// Returns the HTTP response, status code, and an error if any.
+func (t *Tools) PushJSONToRemote(uri string, data any, client ...*http.Client) (*http.Response, int, error) {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	httpClient := &http.Client{}
+	if len(client) > 0 {
+		httpClient = client[0]
+	}
+
+	request, err := http.NewRequest("POST", uri, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return nil, 0, err
+	}
+
+	request.Header.Set("Content-Type", "application/json")
+	response, err := httpClient.Do(request)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer response.Body.Close()
+
+	return response, response.StatusCode, nil
 }
